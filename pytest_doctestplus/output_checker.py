@@ -6,8 +6,7 @@ normalizations of Python expression output.  See the docstring on
 
 import doctest
 import re
-
-import numpy as np
+import math
 
 import six
 from six.moves import zip
@@ -21,6 +20,14 @@ FLOAT_CMP = doctest.register_optionflag('FLOAT_CMP')
 IGNORE_OUTPUT = doctest.register_optionflag('IGNORE_OUTPUT')
 IGNORE_OUTPUT_2 = doctest.register_optionflag('IGNORE_OUTPUT_2')
 IGNORE_OUTPUT_3 = doctest.register_optionflag('IGNORE_OUTPUT_3')
+
+
+def allclose(a, b, rtol=1e-5, atol=1e-8, equal_nan=False):
+    '''Like np.allclose but only for scalars'''
+    if equal_nan and math.isnan(a) and math.isnan(b):
+        return True
+    else:
+        return abs(a - b) <= atol + rtol * abs(b)
 
 
 class OutputChecker(doctest.OutputChecker):
@@ -118,7 +125,7 @@ class OutputChecker(doctest.OutputChecker):
                 else:
                     nw_.append(nw)
 
-                if not np.allclose(float(ng), float(nw), rtol=self.rtol,
+                if not allclose(float(ng), float(nw), rtol=self.rtol,
                                    atol=self.atol, equal_nan=True):
                     return False
 
